@@ -1,7 +1,14 @@
 import "./style.css";
+import React from "react";
+import { useEffect } from "react";
+import { useState } from "react";
+import { useRef } from "react";
+import axios from "axios";
+
 
 export function EmployeeList(props) {
-  const { items } = props;
+  const { items} = props;
+  
   return (
     <div className="dataTable-wrapper dataTable-loading no-footer sortable searchable fixed-columns">
       <div className="dataTable-top">
@@ -19,45 +26,32 @@ export function EmployeeList(props) {
             entries per page
           </label>
         </div>
-        <div className="dataTable-search">
-          <input
-            className="dataTable-input"
-            placeholder="Search..."
-            type="text"
-          />
-        </div>
       </div>
       <div className="dataTable-container">
         <table className="table-bordered">
           <thead>
             <tr>
+              <th>Id</th>
               <th>Name</th>
-              <th>Position</th>
-              <th>Office</th>
-              <th>Age</th>
-              <th>Start date</th>
-              <th>Salary</th>
+              <th>UserName</th>
+              <th>Email</th>
             </tr>
           </thead>
           <tfoot>
             <tr>
-              <th>Name</th>
-              <th>Position</th>
-              <th>Office</th>
-              <th>Age</th>
-              <th>Start date</th>
-              <th>Salary</th>
+            <td>Id</td>
+              <td>Name</td>
+              <td>UserName</td>
+              <td>Email</td>
             </tr>
           </tfoot>
           <tbody>
             {(items || []).map((item) => (
-              <tr key={item.name}>
+              <tr key={item.userId}>
+                <td>{item.id}</td>
                 <td>{item.name}</td>
-                <td>{item.position}</td>
-                <td>{item.office}</td>
-                <td>{item.age}</td>
-                <td>{item.startDate}</td>
-                <td>{item.salary}</td>
+                <td>{item.username}</td>
+                <td>{item.email}</td>
               </tr>
             ))}
           </tbody>
@@ -105,6 +99,52 @@ export function EmployeeList(props) {
           </ul>
         </nav>
       </div>
+    </div>
+  );
+}
+
+export function Modal(props) {
+  const [id,setId] = useState('');
+  const [name,setName] = useState('');
+  const [username,setUsername] = useState('');
+  const [email,setEmail] = useState('');
+  const modalElement = useRef(null);
+  function createPost(e) {
+    e.preventDefault();
+    const postData = {id,name,username,email};
+    axios
+      .post("https://jsonplaceholder.typicode.com/users/1", postData)
+      .then((response) => {
+        console.log(response.data)
+      });
+      modalElement.current.style.display = 'none';
+  }
+  function close() {
+    props.modalElement.current.style.display = 'none';
+  }
+
+  function open() {
+    props.modalElement.current.style.display = 'block';
+  }
+
+  useEffect(() => {
+    props.buttonOpen.current.onclick = open;
+  });
+  return (
+    <div>
+      <form id='personForm' onSubmit={e => createPost()}>
+        <label>Id</label><input type="text" className="form-control" placeholder="Enter id" name="id" id="id" required="required" onChange={(e) => setId(e.target.value)}/>
+        <label>Name</label>
+        <input type="text" className="form-control" placeholder="Enter name" name="name" id="name" required="required" onChange={(e) => setName(e.target.value)}/>
+        <label>Username</label>
+        <input type="text" className="form-control" placeholder="Username" name="username" id="username" required="required" onChange={(e) => setUsername(e.target.value)}/>
+        <label for="exampleInputEmail1">Email address</label>
+        <input type="email" className="form-control" placeholder="Enter email" name="email" id="email" required="required" onChange={(e) => setEmail(e.target.value)}/>
+        <div id="buttons">
+          <button type="submit" className="btn btn-danger submit-button">Submit</button>
+          <button className="btn btn-primary cancel-button" onClick={close}>Cancel</button>
+        </div>
+      </form>
     </div>
   );
 }
